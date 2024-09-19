@@ -1,4 +1,4 @@
-import { Server, loggingHook } from '../lib';
+import { Methods, Server, loggingHook } from '../lib';
 
 const server = new Server({
   host: 'localhost',
@@ -9,7 +9,7 @@ server.addHook(loggingHook);
 
 server.add({
   path: '/',
-  method: 'GET',
+  method: Methods.GET,
   callback: async (req, res) => {
     res.send('Hello World');
   }

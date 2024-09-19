@@ -1,6 +1,6 @@
 {
   "name": "httts",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A typed http server",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -22,7 +22,7 @@
     "/lib"
   ],
   "author": "Miko0187",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "dependencies": {
     "ua-parser-js": "^1.0.39"
   },
