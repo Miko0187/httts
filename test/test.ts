@@ -7,13 +7,6 @@ const server = new Server({
 
 server.addHook(loggingHook);
 
-server.addHook({
-  name: 'testHook',
-  before: async (req, res) => {
-    console.log('Before hook');
-  },
-});
-
 server.add({
   path: '/',
   method: 'GET',
