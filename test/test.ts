@@ -1,4 +1,4 @@
-import { Server, loggingHook } from '../dist';
+import { Server, loggingHook } from '../lib';
 
 const server = new Server({
   host: 'localhost',
