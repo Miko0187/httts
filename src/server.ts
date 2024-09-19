@@ -98,10 +98,6 @@ export class Server {
   }
 
   start(): void {
-    this.hooks.forEach(hook => {
-      this.logger.debug(`Loaded Hook "${hook.name}"`);
-    });
-
     this.executeHooks('start', [this]);
 
     this.adapter.listen(this.port, this.host);
