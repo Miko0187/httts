@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "github.com/Miko0187/httts"
+    "url": "github.com/Miko0187/httts.git"
   },
   "keywords": [
     "typescript",
@@ -19,7 +19,7 @@
     "server"
   ],
   "files": [
-    "lib"
+    "/lib"
   ],
   "author": "Miko0187",
   "license": "Apache-2.0",
