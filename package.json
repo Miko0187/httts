@@ -2,8 +2,8 @@
   "name": "httts",
   "version": "1.0.0",
   "description": "A typed http server",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
     "build": "tsc",
     "test": "tsc --outDir test test/test.ts && NODE_ENV=\"development\" node test/test.js",
