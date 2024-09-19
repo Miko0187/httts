@@ -6,7 +6,7 @@ export const loggingHook: Hook = {
     const now = new Date();
 
     const day = String(now.getDate()).padStart(2, '0');
-    const month = String(now.getMonth() + 1).padStart(2, '0'); // Monate sind nullbasiert
+    const month = String(now.getMonth() + 1).padStart(2, '0');
     const year = now.getFullYear();
 
     const hours = String(now.getHours()).padStart(2, '0');
@@ -23,7 +23,7 @@ export const loggingHook: Hook = {
     const now = new Date();
 
     const day = String(now.getDate()).padStart(2, '0');
-    const month = String(now.getMonth() + 1).padStart(2, '0'); // Monate sind nullbasiert
+    const month = String(now.getMonth() + 1).padStart(2, '0');
     const year = now.getFullYear();
 
     const hours = String(now.getHours()).padStart(2, '0');
