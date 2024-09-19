@@ -126,19 +126,40 @@ export class Server {
   }
 
   invoke(path: string, request: Request, response: Response): void {
-    const route = this.routes.get(path);
+    let route = this.routes.get(path);
+    request.params = {};
 
     if (!route) {
-      this.executeHooks(404, [request, response, this]);
+      let found = false;
 
-      response.setStatusCode(404);
-      response.send('404 Not Found');
+      // Optimize this
+      for (const [key, value] of this.routes) {
+        const regex = new RegExp(`^${key.replace(/:\w+/g, '([a-zA-Z0-9]+)')}$`);
+        const match = path.match(regex);
 
-      return;
+        if (match) {
+          route = value;
+          found = true;
+
+          const keys = key.match(/:\w+/g) || [];
+          keys.forEach((key, index) => {
+            request.params[key.slice(1)] = match[index + 1];
+          });
+
+          break;
+        }
+      }
+
+      if (!found) {
+        response.setStatusCode(404);
+        response.send('Not found');
+
+        return;
+      }
     }
 
     this.executeHooks('before', [request, response, this]);
-    route.callback(request, response);
+    route?.callback(request, response);
     this.executeHooks('after', [request, response, this]);
   }
 }

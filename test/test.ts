@@ -15,4 +15,12 @@ server.add({
   }
 })
 
+server.add({
+  path: '/:id/:name',
+  method: Methods.GET,
+  callback: async (req, res) => {
+    res.send(`Hello ${req.params.id}/${req.params.name}`);
+  }
+});
+
 server.start();
