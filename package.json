@@ -1,0 +1,34 @@
+{
+  "name": "httts",
+  "version": "1.0.0",
+  "description": "A typed http server",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "tsc --outDir test test/test.ts && NODE_ENV=\"development\" node test/test.js",
+    "clean": "rm -rf dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/Miko0187/httts"
+  },
+  "keywords": [
+    "typescript",
+    "http",
+    "server"
+  ],
+  "files": [
+    "dist"
+  ],
+  "author": "Miko0187",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "ua-parser-js": "^1.0.39"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.5",
+    "@types/ua-parser-js": "^0.7.39",
+    "typescript": "^5.6.2"
+  }
+}
