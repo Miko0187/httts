@@ -24,7 +24,6 @@
   "author": "Miko0187",
   "license": "Apache-2.0",
   "dependencies": {
-    "httts": "github:Miko0187/httts",
     "ua-parser-js": "^1.0.39"
   },
   "devDependencies": {
