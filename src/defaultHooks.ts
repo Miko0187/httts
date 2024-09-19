@@ -37,4 +37,14 @@ export const loggingHook: Hook = {
   start(server) {
     server.logger.info(`Server started on http://${server.host}:${server.port}`);
   },
+  hookAdded(hook, server, success) {
+    if (success) {
+      server.logger.debug(`Hook "${hook.name}" added`);
+    }
+  },
+  hookRemoved(hook, server, success) {
+    if (success) {
+      server.logger.debug(`Hook "${hook.name}" removed`);
+    }
+  },
 };

@@ -66,8 +66,13 @@ export class Server {
   addHook(hook: Hook): void {
     if (this.hooks.find(h => h.name === hook.name)) {
       this.logger.error(`Hook "${hook.name}" already exists`);
+
+      this.executeHooks('hookAdded', [hook, this, false]);
+
       return;
     }
+
+    this.executeHooks('hookAdded', [hook, this, true]);
 
     this.hooks.push(hook);
   }
@@ -75,10 +80,20 @@ export class Server {
   removeHook(name: string): void {
     const beforeLength = this.hooks.length;
 
-    this.hooks = this.hooks.filter(hook => hook.name !== name);
+    let hook = this.hooks.find(h => h.name === name);
+
+    if (hook) {
+      this.hooks = this.hooks.filter(h => h.name !== name);
+    } else {
+      hook = { name };
+    }
 
     if (beforeLength === this.hooks.length) {
       this.logger.error(`Hook "${name}" not found`);
+
+      this.executeHooks('hookRemoved', [hook, this, false]);
+    } else {
+      this.executeHooks('hookRemoved', [hook, this, true]);
     }
   }
 
