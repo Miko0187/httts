@@ -47,4 +47,17 @@ export const loggingHook: Hook = {
       server.logger.debug(`Hook "${hook.name}" removed`);
     }
   },
+  routeAdded(route, server, success) {
+    if (success) {
+      server.logger.debug(`Route "${route.path}" added`);
+    }
+  },
+  routeRemoved(route, server, success) {
+    if (success) {
+      server.logger.debug(`Route "${route.path}" removed`);
+    }
+  },
+  stop(server) {
+    server.logger.info(`Server stopped`);
+  }
 };
