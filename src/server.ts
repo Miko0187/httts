@@ -64,6 +64,11 @@ export class Server {
   }
 
   addHook(hook: Hook): void {
+    if (this.hooks.find(h => h.name === hook.name)) {
+      this.logger.error(`Hook "${hook.name}" already exists`);
+      return;
+    }
+
     this.hooks.push(hook);
   }
 
@@ -73,11 +78,15 @@ export class Server {
     this.hooks = this.hooks.filter(hook => hook.name !== name);
 
     if (beforeLength === this.hooks.length) {
-      this.logger.warn(`Hook "${name}" not found`);
+      this.logger.error(`Hook "${name}" not found`);
     }
   }
 
   start(): void {
+    this.hooks.forEach(hook => {
+      this.logger.debug(`Loaded Hook "${hook.name}"`);
+    });
+
     this.executeHooks('start', [this]);
 
     this.adapter.listen(this.port, this.host);

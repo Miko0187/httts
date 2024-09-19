@@ -7,10 +7,25 @@ const server = new Server({
 
 server.addHook(loggingHook);
 
+server.addHook({
+  name: 'testHook',
+  before: async (req, res) => {
+    console.log('Before hook');
+  },
+});
+
+server.addHook({
+  name: 'testHook',
+  before: async (req, res) => {
+    console.log('Before hook');
+  },
+});
+
 server.add({
   path: '/',
   method: 'GET',
   callback: async (req, res) => {
+    server.removeHook('testHook');
     res.send('Hello World');
   }
 })
