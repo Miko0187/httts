@@ -26,6 +26,16 @@ export class Server {
     this.port = options.port;
     this.logger = options.logger || new DefaultLogger();
     this.adapter = options.adapter || new DefaultAdapter(this, this.logger);
+
+    process.on('SIGINT', () => {
+      this.stop();
+      process.exit(0);
+    });
+
+    process.on('SIGTERM', () => {
+      this.stop();
+      process.exit(0);
+    });
   }
 
   executeHooks<K extends keyof Hook>(
@@ -120,7 +130,7 @@ export class Server {
 
     if (!route) {
       this.executeHooks(404, [request, response, this]);
-      
+
       response.setStatusCode(404);
       response.send('404 Not Found');
 
