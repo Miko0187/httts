@@ -33,64 +33,68 @@ export class DefaultAdapter extends Adapter {
         body += chunk;
       });
 
-      const request = <Request>{
-        headers: req.headers,
-        method: req.method,
-        url: req.url || '/',
-        host: req.headers.host || '',
-        userAgent: <UserAgent>{
-          architecture: (ua && ua.cpu && ua.cpu.architecture) || '',
-          browser: (ua && ua.browser && ua.browser.name) || '',
-          name: (ua && ua.os && ua.os.name) || '',
-          version: (ua && ua.os && ua.os.version) || '',
-          os: (ua && ua.engine && ua.engine.name) || '',
-        },
-        body: body,
-      }
+      const _this = this;
 
-      const response = <Response>{
-        logger: this.logger,
-        close() {
-          if (res.writableEnded) {
-            this.logger.warn('Response already sent, ignoring request to close');
-            return;
-          }
-
-          res.end();
-        },
-        send(body) {
-          if (!res.getHeader('Content-Type')) {
-            res.setHeader('Content-Type', 'text/plain');
-          }
-          res.write(body);
-        },
-        sendCustom(body, type) {
-          res.setHeader('Content-Type', type);
-          res.write(body);
-        },
-        sendFile(path) {
-          this.logger.warn('Send file not implemented');
-        },
-        sendJSON(body) {
-          if (!res.getHeader('Content-Type')) {
-            res.setHeader('Content-Type', 'application/json');
-          }
-          res.write(JSON.stringify(body));
-        },
-        setHeader(name, value) {
-          res.setHeader(name, value);
-        },
-        setStatusCode(statusCode) {
-          res.statusCode = statusCode;
-        },
-        redirect(statusCode, path) {
-          res.statusCode = statusCode;
-          res.setHeader('Location', path);
-          res.end();
-        },
-      }
-
-      this.onRequest(request, response);
+      req.on('end', function () {
+        const request = <Request>{
+          headers: req.headers,
+          method: req.method,
+          url: req.url || '/',
+          host: req.headers.host || '',
+          userAgent: <UserAgent>{
+            architecture: (ua && ua.cpu && ua.cpu.architecture) || '',
+            browser: (ua && ua.browser && ua.browser.name) || '',
+            name: (ua && ua.os && ua.os.name) || '',
+            version: (ua && ua.os && ua.os.version) || '',
+            os: (ua && ua.engine && ua.engine.name) || '',
+          },
+          body: body,
+        }
+  
+        const response = <Response>{
+          logger: _this.logger,
+          close() {
+            if (res.writableEnded) {
+              this.logger.warn('Response already sent, ignoring request to close');
+              return;
+            }
+  
+            res.end();
+          },
+          send(body) {
+            if (!res.getHeader('Content-Type')) {
+              res.setHeader('Content-Type', 'text/plain');
+            }
+            res.write(body);
+          },
+          sendCustom(body, type) {
+            res.setHeader('Content-Type', type);
+            res.write(body);
+          },
+          sendFile(path) {
+            this.logger.warn('Send file not implemented');
+          },
+          sendJSON(body) {
+            if (!res.getHeader('Content-Type')) {
+              res.setHeader('Content-Type', 'application/json');
+            }
+            res.write(JSON.stringify(body));
+          },
+          setHeader(name, value) {
+            res.setHeader(name, value);
+          },
+          setStatusCode(statusCode) {
+            res.statusCode = statusCode;
+          },
+          redirect(statusCode, path) {
+            res.statusCode = statusCode;
+            res.setHeader('Location', path);
+            res.end();
+          },
+        }
+  
+        _this.onRequest(request, response);
+      });
     });
   }
 

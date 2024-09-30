@@ -1,4 +1,5 @@
 import { Methods, Server, loggingHook } from '../lib';
+import { open } from 'fs/promises';
 
 const server = new Server({
   host: 'localhost',
@@ -11,7 +12,12 @@ server.add({
   path: '/',
   method: Methods.GET,
   callback: async (req, res) => {
-    res.send('Hello World');
+    const file = await open('test/index.html', 'r');
+
+    res.setHeader('Content-Type', 'text/html');
+    res.send(await file.readFile({ encoding: 'utf-8' }));
+
+    await file.close();
     res.close();
   }
 });
@@ -20,6 +26,8 @@ server.add({
   path: '/',
   method: Methods.POST,
   callback: async (req, res) => {
+    console.log(req.body);
+
     res.send('!World Hello');
     res.close();
   }

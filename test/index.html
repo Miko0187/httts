@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Some Tests</title>
+</head>
+<body>
+    <button id="testOne">Test 1</button>
+    <script>
+        const testOne = document.getElementById('testOne');
+
+        testOne.addEventListener('click', () => {
+            const request = new XMLHttpRequest();
+            request.open('POST', 'http://localhost:8080/');
+            request.setRequestHeader('Content-Type', 'application/json');
+            request.send(JSON.stringify({ test: 'test' }));
+        });
+    </script>
+</body>
+</html>

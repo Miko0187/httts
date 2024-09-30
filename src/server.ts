@@ -191,14 +191,14 @@ export class Server {
 
       // Todo: Optimize this
       for (const [key, value] of this.routes.get(path) || []) {
-        const regex = new RegExp(`^${key.replace(/:\w+/g, '([a-zA-Z0-9]+)')}$`);
+        const regex = new RegExp(`^${key.toString().replace(/:\w+/g, '([a-zA-Z0-9]+)')}$`);
         const match = path.match(regex);
 
         if (match) {
           route = value;
           found = true;
 
-          const keys = key.match(/:\w+/g) || [];
+          const keys = key.toString().match(/:\w+/g) || [];
           keys.forEach((key, index) => {
             request.params[key.slice(1)] = match[index + 1];
           });
