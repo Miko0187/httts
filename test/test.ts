@@ -12,13 +12,7 @@ server.add({
   path: '/',
   method: Methods.GET,
   callback: async (req, res) => {
-    const file = await open('test/index.html', 'r');
-
-    res.setHeader('Content-Type', 'text/html');
-    res.send(await file.readFile({ encoding: 'utf-8' }));
-
-    await file.close();
-    res.close();
+    res.sendFile('test/index.html', 'text/html');
   }
 });
 
@@ -29,7 +23,6 @@ server.add({
     console.log(req.body);
 
     res.send('!World Hello');
-    res.close();
   }
 });
 
@@ -39,7 +32,6 @@ server.add({
   method: Methods.GET,
   callback: async (req, res) => {
     res.send(`Hello ${req.params.id}/${req.params.name}`);
-    res.close();
   }
 });
 

@@ -1,7 +1,7 @@
 import http from 'http';
 import { Adapter, Request, Response, UserAgent } from "./adapter";
 import { UAParser, IResult } from "ua-parser-js";
-import { open } from 'fs';
+import { open } from 'fs/promises';
 import type { Logger } from "./logger";
 import type { Server } from "./server";
 
@@ -66,26 +66,27 @@ export class DefaultAdapter extends Adapter {
             if (!res.getHeader('Content-Type')) {
               res.setHeader('Content-Type', 'text/plain');
             }
-            res.write(body);
+            res.end(body);
           },
           sendCustom(body, type) {
             res.setHeader('Content-Type', type);
-            res.write(body);
+            res.end(body);
           },
           sendFile(path, type) {
-            const file = open(path, 'r', (err, fd) => {
-              if (err) {
-                res.statusCode = 500;
-                res.write('Internal server error');
-                res.end();
-
-                this.logger.error(`Error opening file: ${err.message}`);
-                return;
-              }
-  
+            open(path, 'r').then(file => {
               res.setHeader('Content-Type', type);
-              res.write(fd);
-        
+              file.readFile({ encoding: 'utf-8' }).then(data => {
+                res.end(data);
+              }).catch(err => {
+                _this.logger.error(`Error reading file: ${err}`);
+                res.statusCode = 500;
+                res.end();
+              });
+
+              file.close();
+            }).catch(err => {
+              _this.logger.error(`Error reading file: ${err}`);
+              res.statusCode = 500;
               res.end();
             });
           },
@@ -93,7 +94,7 @@ export class DefaultAdapter extends Adapter {
             if (!res.getHeader('Content-Type')) {
               res.setHeader('Content-Type', 'application/json');
             }
-            res.write(JSON.stringify(body));
+            res.end(JSON.stringify(body));
           },
           setHeader(name, value) {
             res.setHeader(name, value);
