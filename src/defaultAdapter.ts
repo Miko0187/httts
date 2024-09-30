@@ -27,6 +27,12 @@ export class DefaultAdapter extends Adapter {
         ua = undefined;
       }
 
+      let body = '';
+
+      req.on('data', (chunk) => {
+        body += chunk;
+      });
+
       const request = <Request>{
         headers: req.headers,
         method: req.method,
@@ -38,7 +44,8 @@ export class DefaultAdapter extends Adapter {
           name: (ua && ua.os && ua.os.name) || '',
           version: (ua && ua.os && ua.os.version) || '',
           os: (ua && ua.engine && ua.engine.name) || '',
-        }
+        },
+        body: body,
       }
 
       const response = <Response>{
