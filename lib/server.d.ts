@@ -1,4 +1,4 @@
-import { Route } from "./route";
+import { Methods, Route } from "./route";
 import { Logger } from "./logger";
 import type { Adapter, Response, Request } from "./adapter";
 import type { Hook } from "./hooks";
@@ -16,9 +16,9 @@ export declare class Server {
     readonly host: string;
     readonly port: number;
     constructor(options: ServerOptions);
-    executeHooks<K extends keyof Hook>(where: K, args: any[]): void;
+    executeHooks<K extends keyof Hook>(which: K, args: any[]): void;
     add(route: Route): void;
-    remove(path: string): void;
+    remove(path: string, method: Methods): void;
     addHook(hook: Hook): void;
     removeHook(name: string): void;
     start(): void;

@@ -1,3 +1,4 @@
 node_modules
 package-lock.json
 test/test.js
+lib/tsconfig.tsbuildinfo

@@ -12,7 +12,7 @@ interface ServerOptions {
 }
 
 export class Server {
-  private routes: Map<string, Route> = new Map();
+  private routes: Map<string, Map<Methods, Route>> = new Map();
   private hooks: Hook[] = [];
 
   public logger: Logger;
@@ -72,13 +72,20 @@ export class Server {
    */
   add(route: Route): void {
     if (this.routes.has(route.path)) {
-      this.logger.error(`Route "${route.path}" already exists`);
-      this.executeHooks('routeAdded', [route, this, false]);
+      const methodMap = this.routes.get(route.path);
+      if (methodMap?.has(route.method)) {
+        this.logger.error(`Route "${route.path}" with method "${route.method}" already exists`);
+        this.executeHooks('routeAdded', [route, this, false]);
 
-      return;
+        return;
+      }
     }
 
-    this.routes.set(route.path, route);
+    const methodMap = this.routes.get(route.path) || new Map();
+    methodMap.set(route.method, route);
+
+    this.routes.set(route.path, methodMap);
+
     this.executeHooks('routeAdded', [route, this, true]);
   }
   
@@ -88,10 +95,18 @@ export class Server {
    * @param method {Methods} The method of the route to remove
    */
   remove(path: string, method: Methods): void {
-    const route = this.routes.get(path);
+    const base = this.routes.get(path);
+    if (!base) {
+      this.logger.error(`Route "${path}" not found`);
+      this.executeHooks('routeRemoved', [{ path: path }, this, false]);
+
+      return;
+    }
+
+    const route = base.get(method);
 
     if (route) {
-      this.routes.delete(path);
+      this.routes.get(path)?.delete(method);
       this.executeHooks('routeRemoved', [route, this, true]);
     } else {
       this.logger.error(`Route "${path}" not found`);
@@ -160,14 +175,22 @@ export class Server {
    * @param response {Response} The response object
    */
   invoke(path: string, request: Request, response: Response): void {
-    let route = this.routes.get(path);
+    let base = this.routes.get(path);
+    if (!base) {
+      response.setStatusCode(404);
+      response.send('Not found');
+
+      return;
+    }
+
+    let route = base.get(request.method as Methods);
     request.params = {};
 
     if (!route) {
       let found = false;
 
       // Todo: Optimize this
-      for (const [key, value] of this.routes) {
+      for (const [key, value] of this.routes.get(path) || []) {
         const regex = new RegExp(`^${key.replace(/:\w+/g, '([a-zA-Z0-9]+)')}$`);
         const match = path.match(regex);
 
