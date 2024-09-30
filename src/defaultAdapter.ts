@@ -107,6 +107,9 @@ export class DefaultAdapter extends Adapter {
             res.setHeader('Location', path);
             res.end();
           },
+          write(body) {
+            res.write(body);
+          },
         }
   
         _this.onRequest(request, response);

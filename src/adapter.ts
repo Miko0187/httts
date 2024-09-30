@@ -27,6 +27,7 @@ export interface Response {
   sendJSON: (body: Record<string, unknown>) => void;
   sendFile: (path: string, type: string) => void;
   redirect: (statusCode: number, url: string) => void;
+  write: (body: string) => void;
   close: () => void;
 }
 

@@ -180,6 +180,8 @@ export class Server {
       response.setStatusCode(404);
       response.send('Not found');
 
+      this.executeHooks(404, [request, response, this]);
+
       return;
     }
 
@@ -210,6 +212,8 @@ export class Server {
       if (!found) {
         response.setStatusCode(404);
         response.send('Not found');
+
+        this.executeHooks(404, [request, response, this]);
 
         return;
       }
