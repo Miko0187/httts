@@ -25,7 +25,7 @@ export interface Response {
   send: (body: string) => void;
   sendCustom(body: Buffer | string, type: string): void;
   sendJSON: (body: Record<string, unknown>) => void;
-  sendFile: (path: string) => void;
+  sendFile: (path: string, type: string) => void;
   redirect: (statusCode: number, url: string) => void;
   close: () => void;
 }

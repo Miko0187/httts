@@ -1,6 +1,7 @@
 import http from 'http';
 import { Adapter, Request, Response, UserAgent } from "./adapter";
 import { UAParser, IResult } from "ua-parser-js";
+import { open } from 'fs';
 import type { Logger } from "./logger";
 import type { Server } from "./server";
 
@@ -71,8 +72,22 @@ export class DefaultAdapter extends Adapter {
             res.setHeader('Content-Type', type);
             res.write(body);
           },
-          sendFile(path) {
-            this.logger.warn('Send file not implemented');
+          sendFile(path, type) {
+            const file = open(path, 'r', (err, fd) => {
+              if (err) {
+                res.statusCode = 500;
+                res.write('Internal server error');
+                res.end();
+
+                this.logger.error(`Error opening file: ${err.message}`);
+                return;
+              }
+  
+              res.setHeader('Content-Type', type);
+              res.write(fd);
+        
+              res.end();
+            });
           },
           sendJSON(body) {
             if (!res.getHeader('Content-Type')) {
