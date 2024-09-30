@@ -52,7 +52,9 @@ export class DefaultAdapter extends Adapter {
           res.end();
         },
         send(body) {
-          res.setHeader('Content-Type', 'text/plain');
+          if (!res.getHeader('Content-Type')) {
+            res.setHeader('Content-Type', 'text/plain');
+          }
           res.write(body);
         },
         sendCustom(body, type) {
@@ -63,7 +65,9 @@ export class DefaultAdapter extends Adapter {
           this.logger.warn('Send file not implemented');
         },
         sendJSON(body) {
-          res.setHeader('Content-Type', 'application/json');
+          if (!res.getHeader('Content-Type')) {
+            res.setHeader('Content-Type', 'application/json');
+          }
           res.write(JSON.stringify(body));
         },
         setHeader(name, value) {
