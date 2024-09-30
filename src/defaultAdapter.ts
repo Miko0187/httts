@@ -52,18 +52,19 @@ export class DefaultAdapter extends Adapter {
           res.end();
         },
         send(body) {
-          res.end(body);
+          res.setHeader('Content-Type', 'text/plain');
+          res.write(body);
         },
         sendCustom(body, type) {
           res.setHeader('Content-Type', type);
-          res.end(body);
+          res.write(body);
         },
         sendFile(path) {
           this.logger.warn('Send file not implemented');
         },
         sendJSON(body) {
           res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify(body));
+          res.write(JSON.stringify(body));
         },
         setHeader(name, value) {
           res.setHeader(name, value);
@@ -75,7 +76,7 @@ export class DefaultAdapter extends Adapter {
           res.statusCode = statusCode;
           res.setHeader('Location', path);
           res.end();
-        }
+        },
       }
 
       this.onRequest(request, response);
@@ -100,7 +101,7 @@ export class DefaultAdapter extends Adapter {
   }
 
   override onError(callback: (error: Error) => void): void {
-    this.logger.error('Not implemented');
+    this.server.on('error', callback);
   }
 
   override onRequest(request: Request, response: Response): void {

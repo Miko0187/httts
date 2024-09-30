@@ -1,4 +1,4 @@
-import { Route } from "./route";
+import { Methods, Route } from "./route";
 import { DefaultLogger, Logger } from "./logger";
 import { DefaultAdapter } from "./defaultAdapter";
 import type { Adapter, Response, Request } from "./adapter";
@@ -38,12 +38,17 @@ export class Server {
     });
   }
 
+  /**
+   * Execute a hook
+   * @param which {Hook} Which hook to execute
+   * @param args  {any[]} Arguments to pass to the hook
+   */
   executeHooks<K extends keyof Hook>(
-    where: K, 
+    which: K, 
     args: any[]
   ): void {
     for (const hook of this.hooks) {
-      const hookFunction = hook[where];
+      const hookFunction = hook[which];
 
       if (typeof hookFunction === 'function') {
         try {
@@ -61,6 +66,10 @@ export class Server {
     }
   }
 
+  /**
+   * Add a Route to the server  
+   * @param route {Route} The route to add
+   */
   add(route: Route): void {
     if (this.routes.has(route.path)) {
       this.logger.error(`Route "${route.path}" already exists`);
@@ -73,7 +82,12 @@ export class Server {
     this.executeHooks('routeAdded', [route, this, true]);
   }
   
-  remove(path: string): void {
+  /**
+   * Remove a Route from the server
+   * @param path {string} The path of the route to remove
+   * @param method {Methods} The method of the route to remove
+   */
+  remove(path: string, method: Methods): void {
     const route = this.routes.get(path);
 
     if (route) {
@@ -85,6 +99,10 @@ export class Server {
     }
   }
 
+  /**
+   * Add a hook to the server
+   * @param hook {Hook} The hook to add
+   */
   addHook(hook: Hook): void {
     if (this.hooks.find(h => h.name === hook.name)) {
       this.logger.error(`Hook "${hook.name}" already exists`);
@@ -93,10 +111,14 @@ export class Server {
       return;
     }
 
-    this.executeHooks('hookAdded', [hook, this, true]);
     this.hooks.push(hook);
+    this.executeHooks('hookAdded', [hook, this, true]);
   }
 
+  /**
+   * Remove a hook from the server
+   * @param name {string} The name of the hook to remove
+   */
   removeHook(name: string): void {
     const beforeLength = this.hooks.length;
     let hook = this.hooks.find(h => h.name === name);
@@ -115,16 +137,28 @@ export class Server {
     }
   }
 
+  /**
+   * Start the server
+   */
   start(): void {
     this.executeHooks('start', [this]);
     this.adapter.listen(this.port, this.host);
   }
 
+  /**
+   * Stop the server
+   */
   stop(): void {
     this.executeHooks('stop', [this]);
     this.adapter.close();
   }
 
+  /**
+   * Invoke a route (used by the adapter)
+   * @param path     {string}   The path of the route to invoke
+   * @param request  {Request}  The request object
+   * @param response {Response} The response object
+   */
   invoke(path: string, request: Request, response: Response): void {
     let route = this.routes.get(path);
     request.params = {};
@@ -132,7 +166,7 @@ export class Server {
     if (!route) {
       let found = false;
 
-      // Optimize this
+      // Todo: Optimize this
       for (const [key, value] of this.routes) {
         const regex = new RegExp(`^${key.replace(/:\w+/g, '([a-zA-Z0-9]+)')}$`);
         const match = path.match(regex);
