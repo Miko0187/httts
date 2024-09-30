@@ -4,6 +4,7 @@ import { open } from 'fs/promises';
 const server = new Server({
   host: 'localhost',
   port: 8080,
+  resources: 'resources'
 });
 
 server.addHook(loggingHook);

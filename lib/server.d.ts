@@ -5,6 +5,7 @@ import type { Hook } from "./hooks";
 interface ServerOptions {
     host: string;
     port: number;
+    resources?: string;
     logger?: Logger;
     adapter?: Adapter;
 }
@@ -15,6 +16,7 @@ export declare class Server {
     adapter: Adapter;
     readonly host: string;
     readonly port: number;
+    readonly resources: string;
     constructor(options: ServerOptions);
     executeHooks<K extends keyof Hook>(which: K, args: any[]): void;
     add(route: Route): void;

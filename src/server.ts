@@ -4,9 +4,38 @@ import { DefaultAdapter } from "./defaultAdapter";
 import type { Adapter, Response, Request } from "./adapter";
 import type { Hook } from "./hooks";
 
+const contentTypes = {
+  'html': 'text/html',
+  'css': 'text/css',
+  'js': 'text/javascript',
+  'json': 'application/json',
+  'png': 'image/png',
+  'jpg': 'image/jpeg',
+  'jpeg': 'image/jpeg',
+  'svg': 'image/svg+xml',
+  'gif': 'image/gif',
+  'ico': 'image/x-icon',
+  'webp': 'image/webp',
+  'mp4': 'video/mp4',
+  'webm': 'video/webm',
+  'ogg': 'audio/ogg',
+  'mp3': 'audio/mpeg',
+  'wav': 'audio/wav',
+  'pdf': 'application/pdf',
+  'doc': 'application/msword',
+  'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'xls': 'application/vnd.ms-excel',
+  'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'ppt': 'application/vnd.ms-powerpoint',
+  'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'zip': 'application/zip',
+  'gz': 'application/gzip',
+};
+
 interface ServerOptions {
   host: string;
   port: number;
+  resources?: string;
   logger?: Logger;
   adapter?: Adapter;
 }
@@ -20,10 +49,12 @@ export class Server {
 
   public readonly host: string;
   public readonly port: number;
+  public readonly resources: string;
 
   constructor(options: ServerOptions) {
     this.host = options.host;
     this.port = options.port;
+    this.resources = options.resources || 'resources';
     this.logger = options.logger || new DefaultLogger();
     this.adapter = options.adapter || new DefaultAdapter(this, this.logger);
 
@@ -175,6 +206,21 @@ export class Server {
    * @param response {Response} The response object
    */
   invoke(path: string, request: Request, response: Response): void {
+    if (path.startsWith(`/${this.resources}`)) {
+      const split = path.split('/');
+      const resource = split[split.length - 1];
+      const extension = resource.split('.')[1];
+      let contentType = 'text/plain';
+
+      if (extension in contentTypes) {
+        contentType = contentTypes[extension as keyof typeof contentTypes];
+      }
+
+      response.sendFile(`${this.resources}/${resource}`, contentType);
+      
+      return;
+    }
+
     let base = this.routes.get(path);
     if (!base) {
       response.setStatusCode(404);
