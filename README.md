@@ -11,6 +11,6 @@ An advanced and modular Http server.
 ## 🏗️ Todo
 - [ ] Add a simple example
 - [x] Add dynamic routes
-- [ ] Add Documentation
+- [x] Add Documentation
 - [ ] Add better and faster routing
 - [ ] Websocket support
