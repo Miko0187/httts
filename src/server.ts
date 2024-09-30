@@ -30,6 +30,8 @@ const contentTypes = {
   'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
   'zip': 'application/zip',
   'gz': 'application/gzip',
+  'woff': 'font/woff',
+  'woff2': 'font/woff2',
 };
 
 interface ServerOptions {
