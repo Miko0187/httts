@@ -4,7 +4,7 @@ import { open } from 'fs/promises';
 const server = new Server({
   host: 'localhost',
   port: 8080,
-  resources: 'resources'
+  resources: 'test/resources'
 });
 
 server.addHook(loggingHook);
@@ -27,7 +27,6 @@ server.add({
   }
 });
 
-
 server.add({
   path: '/:id/:name',
   method: Methods.GET,
@@ -35,5 +34,13 @@ server.add({
     res.send(`Hello ${req.params.id}/${req.params.name}`);
   }
 });
+
+server.add({
+  path: '/user/:name',
+  method: Methods.GET,
+  callback: async (req, res) => {
+    res.send(`Hello user/${req.params.name}`);
+  }
+})
 
 server.start();

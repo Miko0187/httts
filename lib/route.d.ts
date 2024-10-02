@@ -1,4 +1,7 @@
 import type { Request, Response } from "./adapter";
+/**
+ * HTTP methods
+ */
 export declare enum Methods {
     GET = "GET",
     POST = "POST",
@@ -7,6 +10,9 @@ export declare enum Methods {
     PATCH = "PATCH",
     OPTIONS = "OPTIONS"
 }
+/**
+ * Route definition
+ */
 export interface Route {
     method: Methods;
     path: string;

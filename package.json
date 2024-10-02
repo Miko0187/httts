@@ -1,12 +1,13 @@
 {
   "name": "httts",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "A typed http server",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
     "build": "tsc",
     "test": "tsc --outDir test test/test.ts && NODE_ENV=\"development\" node test/test.js",
+    "testW": "tsc --outDir test test/test.ts && node test/test.js",
     "clean": "rm -rf lib"
   },
   "repository": {
