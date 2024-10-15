@@ -1,5 +1,5 @@
 export { Server } from './server';
-export { Route, Methods } from './route';
+export { Route, Methods, Websocket } from './route';
 export { Hook } from './hooks';
 export { loggingHook } from './defaultHooks';
 export { Logger } from './logger';
