@@ -7,6 +7,9 @@ export declare enum Methods {
     PATCH = "PATCH",
     OPTIONS = "OPTIONS"
 }
+/**
+ * Route definition
+ */
 export interface Route {
     method: Methods;
     path: string;

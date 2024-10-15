@@ -311,60 +311,48 @@ export class Server {
       let contentType = 'text/plain';
 
       if (extension in contentTypes) {
-        contentType = contentTypes[extension as keyof typeof contentTypes];
+          contentType = contentTypes[extension as keyof typeof contentTypes];
       }
 
       response.sendFile(`${this.resources}/${resource}`, contentType);
-      
       return;
     }
 
-    let base = this.routes.get(path);
-    if (!base) {
-      response.setStatusCode(404);
-      response.send('Not found');
-
-      this.executeHooks(404, [request, response, this]);
-
-      return;
-    }
-
-    let route = base.get(request.method as Methods);
     request.params = {};
 
-    if (!route) {
-      let found = false;
+    let base = this.routes.get(path);
+    let route: Route | undefined;
 
-      // Todo: Optimize this
-      for (const [key, value] of this.routes.get(path) || []) {
-        const regex = new RegExp(`^${key.toString().replace(/:\w+/g, '([a-zA-Z0-9]+)')}$`);
+    if (base) {
+      route = base.get(Methods[request.method as keyof typeof Methods] || Methods.GET);
+    } else {
+      for (const [routePath, methodMap] of this.routes.entries()) {
+        const regex = new RegExp(`^${routePath.replace(/:\w+/g, '([a-zA-Z0-9]+)')}$`);
         const match = path.match(regex);
 
         if (match) {
-          route = value;
-          found = true;
-
-          const keys = key.toString().match(/:\w+/g) || [];
-          keys.forEach((key, index) => {
-            request.params[key.slice(1)] = match[index + 1];
-          });
-
+          route = methodMap.get(Methods[request.method as keyof typeof Methods] || Methods.GET);
+          if (route) {
+            const keys = routePath.match(/:\w+/g) || [];
+            keys.forEach((key, index) => {
+              request.params[key.slice(1)] = match[index + 1];
+            });
+          }
           break;
         }
       }
+    }
 
-      if (!found) {
-        response.setStatusCode(404);
-        response.send('Not found');
-
-        this.executeHooks(404, [request, response, this]);
-
-        return;
-      }
+    if (!route) {
+      response.setStatusCode(404);
+      response.send('Not found');
+      
+      this.executeHooks(404, [request, response, this]);
+      return;
     }
 
     this.executeHooks('before', [request, response, this]);
-    route?.callback(request, response);
+    route.callback(request, response);
     this.executeHooks('after', [request, response, this]);
   }
 }

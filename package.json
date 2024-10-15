@@ -1,6 +1,6 @@
 {
   "name": "httts",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "A typed http server",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
