@@ -48,14 +48,6 @@ server.addWs({
   closing(request) {
     server.logger.info('WebSocket closed');
   },
-});
-
-server.add({
-  path: '/user/:name',
-  method: Methods.GET,
-  callback: async (req, res) => {
-    res.send(`Hello user/${req.params.name}`);
-  }
 })
 
 server.start();
