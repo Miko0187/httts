@@ -1,7 +1,8 @@
-import { Methods, Route } from "./route";
+import { Methods, Route, Websocket } from "./route";
 import { DefaultLogger, Logger } from "./logger";
 import { DefaultAdapter } from "./defaultAdapter";
-import type { Adapter, Response, Request } from "./adapter";
+import { Server as WsServer } from "ws";
+import type { Adapter, Response, Request, WsResponse } from "./adapter";
 import type { Hook } from "./hooks";
 
 const contentTypes = {
@@ -43,7 +44,10 @@ interface ServerOptions {
 }
 
 export class Server {
+  private wss: WsServer;
+
   private routes: Map<string, Map<Methods, Route>> = new Map();
+  private wsRoutes: Map<string, Websocket> = new Map();
   private hooks: Hook[] = [];
 
   public logger: Logger;
@@ -59,6 +63,7 @@ export class Server {
     this.resources = options.resources || 'resources';
     this.logger = options.logger || new DefaultLogger();
     this.adapter = options.adapter || new DefaultAdapter(this, this.logger);
+    this.wss = new WsServer({ noServer: true });
 
     process.on('SIGINT', () => {
       this.stop();
@@ -148,6 +153,37 @@ export class Server {
   }
 
   /**
+   * Add a WebSocket route to the server
+   * @param route {Websocket} The WebSocket route to add
+   */
+  addWs(route: Websocket): void {
+    if (this.wsRoutes.has(route.path)) {
+      this.logger.error(`WebSocket route "${route.path}" already exists`);
+      this.executeHooks('wsAdded', [route, this, false]);
+
+      return;
+    }
+
+    this.wsRoutes.set(route.path, route);
+    this.executeHooks('wsAdded', [route, this, true]);
+  }
+
+  /**
+   * Remove a WebSocket route from the server
+   * @param path {string} The path of the WebSocket route to remove
+   */
+  removeWs(path: string): void {
+    const route = this.wsRoutes.get(path);
+    if (route) {
+      this.wsRoutes.delete(path);
+      this.executeHooks('wsRemoved', [route, this, true]);
+    } else {
+      this.logger.error(`WebSocket route "${path}" not found`);
+      this.executeHooks('wsRemoved', [{ path: path }, this, false]);
+    }
+  }
+
+  /**
    * Add a hook to the server
    * @param hook {Hook} The hook to add
    */
@@ -199,6 +235,66 @@ export class Server {
   stop(): void {
     this.executeHooks('stop', [this]);
     this.adapter.close();
+  }
+
+  /**
+   * Upgrade a request to a WebSocket connection (used by the adapter)
+   * @param request  {Request} The request object
+   * @param socket  {any}    The socket object
+   * @param head    {any}    The head object
+   * @param httpRequest {Request} The HTTP request object
+   */
+  upgrade(request: any, socket: any, head: any, httpRequest: Request): void {
+    const route = this.wsRoutes.get(httpRequest.url);
+    if (!route) {
+      this.logger.error(`WebSocket route "${httpRequest.url}" not found`);
+      return;
+    }
+
+    // Not great, but it works
+    let _ws: any;
+
+    const wsResponse: WsResponse = {
+      logger: this.logger,
+      send: (message: string) => {
+        _ws.send(message);
+      },
+      sendJSON: (message: Record<string, unknown>) => {
+        _ws.send(JSON.stringify(message));
+      },
+      close: () => {
+        if (wsResponse.closed) {
+          return;
+        }
+
+        wsResponse.closed = true;
+        socket.close();
+      },
+      closed: false,
+    };
+
+    this.executeHooks('wsUpgrade', [httpRequest, wsResponse, this]);
+    this.wss.handleUpgrade(request, socket, head, (ws) => {
+      _ws = ws;
+
+      if (route.opened) {
+        route.opened(httpRequest, wsResponse);
+      }
+
+      ws.on('message', (message) => {
+        this.executeHooks('wsMessage', [httpRequest, wsResponse, message, this]);
+        if (route.message) {
+          route.message(httpRequest, wsResponse, message.toString());
+        }
+      });
+
+      ws.on('close', () => {
+        this.executeHooks('wsClose', [httpRequest, this]);
+        if (route.closing) {
+          route.closing(httpRequest);
+        }
+      });
+    });
   }
 
   /**

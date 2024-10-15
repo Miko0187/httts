@@ -7,7 +7,8 @@
   "scripts": {
     "build": "tsc",
     "test": "tsc --outDir test test/test.ts && NODE_ENV=\"development\" node test/test.js",
-    "clean": "rm -rf lib"
+    "clean": "rm -rf lib",
+    "dev": "tsc && npm run test"
   },
   "repository": {
     "type": "git",
@@ -24,11 +25,13 @@
   "author": "Miko0187",
   "license": "MIT",
   "dependencies": {
-    "ua-parser-js": "^1.0.39"
+    "ua-parser-js": "^1.0.39",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "@types/node": "^22.5.5",
     "@types/ua-parser-js": "^0.7.39",
+    "@types/ws": "^8.5.12",
     "typescript": "^5.6.2"
   }
 }

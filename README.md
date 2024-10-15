@@ -13,5 +13,5 @@ An advanced and modular Http server.
 - [x] Add dynamic routes
 - [x] Add Documentation
 - [ ] Add better and faster routing
-- [ ] Websocket support
+- [x] Websocket support (Currently only one WebSocket possible)
 - [ ] Set Resource directory

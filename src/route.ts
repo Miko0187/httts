@@ -1,4 +1,4 @@
-import type { Request, Response } from "./adapter";
+import type { Request, Response, WsResponse } from "./adapter";
 
 /**
  * HTTP methods
@@ -19,4 +19,11 @@ export interface Route {
   method: Methods;
   path: string;
   callback: (req: Request, res: Response) => void;
+}
+
+export interface Websocket {
+  path: string;
+  opened?: (request: Request, response: WsResponse) => void;
+  message?: (request: Request, response: WsResponse, message: string) => void;
+  closing?: (request: Request) => void;
 }

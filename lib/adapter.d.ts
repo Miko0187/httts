@@ -27,9 +27,17 @@ export interface Response {
     write: (body: string) => void;
     close: () => void;
 }
+export interface WsResponse {
+    logger: Logger;
+    send: (message: string) => void;
+    sendJSON: (message: Record<string, unknown>) => void;
+    close: () => void;
+    closed: boolean;
+}
 export declare abstract class Adapter {
     protected logger: Logger;
     constructor(logger?: Logger);
+    abstract onUpgrade(request: Request, socket: any, head: any, httpRequest: Request): void;
     abstract onRequest(request: Request, response: Response): void;
     abstract onError(callback: (error: Error) => void): void;
     abstract listen(port: number, host: string): void;

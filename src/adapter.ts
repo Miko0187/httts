@@ -31,6 +31,14 @@ export interface Response {
   close: () => void;
 }
 
+export interface WsResponse {
+  logger: Logger;
+  send: (message: string) => void;
+  sendJSON: (message: Record<string, unknown>) => void;
+  close: () => void;
+  closed: boolean;
+}
+
 export abstract class Adapter {
   protected logger: Logger;
 
@@ -42,6 +50,7 @@ export abstract class Adapter {
     }
   }
 
+  abstract onUpgrade(request: Request, socket: any, head: any, httpRequest: Request): void;
   abstract onRequest(request: Request, response: Response): void;
   abstract onError(callback: (error: Error) => void): void;
   abstract listen(port: number, host: string): void;

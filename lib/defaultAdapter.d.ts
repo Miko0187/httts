@@ -10,4 +10,5 @@ export declare class DefaultAdapter extends Adapter {
     listen(port: number, host: string): void;
     onError(callback: (error: Error) => void): void;
     onRequest(request: Request, response: Response): void;
+    onUpgrade(request: any, socket: any, head: any, httpRequest: Request): void;
 }

@@ -1,5 +1,5 @@
 import http from 'http';
-import { Adapter, Request, Response, UserAgent } from "./adapter";
+import { Adapter, Request, Response, UserAgent, WsResponse } from "./adapter";
 import { UAParser, IResult } from "ua-parser-js";
 import { open } from 'fs/promises';
 import type { Logger } from "./logger";
@@ -38,8 +38,8 @@ export class DefaultAdapter extends Adapter {
 
       req.on('end', function () {
         const request = <Request>{
-          headers: req.headers,
-          method: req.method,
+          headers: req.headers || {},
+          method: req.method || '',
           url: req.url || '/',
           host: req.headers.host || '',
           userAgent: <UserAgent>{
@@ -52,7 +52,7 @@ export class DefaultAdapter extends Adapter {
           body: body,
         }
   
-        const response = <Response>{
+        const response: Response = {
           logger: _this.logger,
           close() {
             if (res.writableEnded) {
@@ -115,6 +115,35 @@ export class DefaultAdapter extends Adapter {
         _this.onRequest(request, response);
       });
     });
+
+    this.server.on('upgrade', (req, socket, head) => {
+      let ua: IResult | undefined;
+
+      if (req.headers['user-agent']) {
+        const parser = new UAParser(req.headers['user-agent']);
+        ua = parser.getResult();
+      } else {
+        this.logger.warn('User-Agent header not found');
+        ua = undefined;
+      }
+
+      const request = <Request>{
+        headers: req.headers || {},
+        method: req.method || '',
+        url: req.url || '/',
+        host: req.headers.host || '',
+        userAgent: <UserAgent>{
+          architecture: (ua && ua.cpu && ua.cpu.architecture) || '',
+          browser: (ua && ua.browser && ua.browser.name) || '',
+          name: (ua && ua.os && ua.os.name) || '',
+          version: (ua && ua.os && ua.os.version) || '',
+          os: (ua && ua.engine && ua.engine.name) || '',
+        },
+        body: '',
+      }
+
+      this.onUpgrade(req, socket, head, request);
+    });
   }
 
   override close(): void {
@@ -140,5 +169,9 @@ export class DefaultAdapter extends Adapter {
 
   override onRequest(request: Request, response: Response): void {
     this._server.invoke(request.url, request, response);
+  }
+
+  override onUpgrade(request: any, socket: any, head: any, httpRequest: Request): void {
+    this._server.upgrade(request, socket, head, httpRequest);
   }
 }

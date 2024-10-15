@@ -4,7 +4,7 @@ import { open } from 'fs/promises';
 const server = new Server({
   host: 'localhost',
   port: 8080,
-  resources: 'resources'
+  resources: 'test/resources'
 });
 
 server.addHook(loggingHook);
@@ -27,7 +27,6 @@ server.add({
   }
 });
 
-
 server.add({
   path: '/:id/:name',
   method: Methods.GET,
@@ -35,5 +34,20 @@ server.add({
     res.send(`Hello ${req.params.id}/${req.params.name}`);
   }
 });
+
+server.addWs({
+  path: '/ws',
+  opened(request, response) {
+    server.logger.info('WebSocket opened');
+    response.send('Hello from WebSocket');
+  },
+  message(request, response, message) {
+    server.logger.info(`WebSocket message: ${message}`);
+    response.send(`You said: ${message}`);
+  },
+  closing(request) {
+    server.logger.info('WebSocket closed');
+  },
+})
 
 server.start();

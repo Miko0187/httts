@@ -1,4 +1,4 @@
-import { Methods, Route } from "./route";
+import { Methods, Route, Websocket } from "./route";
 import { Logger } from "./logger";
 import type { Adapter, Response, Request } from "./adapter";
 import type { Hook } from "./hooks";
@@ -10,7 +10,9 @@ interface ServerOptions {
     adapter?: Adapter;
 }
 export declare class Server {
+    private wss;
     private routes;
+    private wsRoutes;
     private hooks;
     logger: Logger;
     adapter: Adapter;
@@ -21,10 +23,13 @@ export declare class Server {
     executeHooks<K extends keyof Hook>(which: K, args: any[]): void;
     add(route: Route): void;
     remove(path: string, method: Methods): void;
+    addWs(route: Websocket): void;
+    removeWs(path: string): void;
     addHook(hook: Hook): void;
     removeHook(name: string): void;
     start(): void;
     stop(): void;
+    upgrade(request: any, socket: any, head: any, httpRequest: Request): void;
     invoke(path: string, request: Request, response: Response): void;
 }
 export {};
