@@ -1,6 +1,6 @@
 import { Methods, Route, Websocket } from "./route";
 import { DefaultLogger, Logger } from "./logger";
-import { DefaultAdapter } from "./defaultAdapter";
+import { HttpAdapter, HttpsAdapter } from "./defaultAdapter";
 import { Server as WsServer } from "ws";
 import type { Adapter, Response, Request, WsResponse } from "./adapter";
 import type { Hook } from "./hooks";
@@ -41,6 +41,8 @@ interface ServerOptions {
   resources?: string;
   logger?: Logger;
   adapter?: Adapter;
+  keyPath?: string;
+  certPath?: string;
 }
 
 export class Server {
@@ -62,7 +64,7 @@ export class Server {
     this.port = options.port;
     this.resources = options.resources || 'resources';
     this.logger = options.logger || new DefaultLogger();
-    this.adapter = options.adapter || new DefaultAdapter(this, this.logger);
+    this.adapter = options.adapter || (options.certPath && options.keyPath ? new HttpsAdapter(this, options.keyPath, options.certPath, this.logger) : new HttpAdapter(this, this.logger));
     this.wss = new WsServer({ noServer: true });
 
     process.on('SIGINT', () => {

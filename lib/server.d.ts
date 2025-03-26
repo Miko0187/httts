@@ -8,6 +8,8 @@ interface ServerOptions {
     resources?: string;
     logger?: Logger;
     adapter?: Adapter;
+    keyPath?: string;
+    certPath?: string;
 }
 export declare class Server {
     private wss;
