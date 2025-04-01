@@ -1,14 +1,32 @@
-import { Methods, Server, loggingHook } from '../lib';
-import { open } from 'fs/promises';
+import { Hook, Methods, Server, loggingHook } from '../lib';
 
 const server = new Server({
   host: 'localhost',
   port: 8080,
-  resources: 'test/resources'
+  resources: 'test/resources',
+  debug: true,
 });
 
-server.addHook(loggingHook);
+const someHook: Hook = {
+  name: 'SomeAuthHook',
+  before(request, response, server) {
+    if (request.url !== '/secure') {
+      return;
+    }
 
+    response.setStatusCode(401);
+    response.sendJSON({
+      message: 'Unauthorized',
+    }); 
+
+    return true;
+  },
+}
+
+server.addHook(loggingHook);
+server.addHook(someHook);
+
+// Get request
 server.add({
   path: '/',
   method: Methods.GET,
@@ -17,6 +35,7 @@ server.add({
   }
 });
 
+// Post request
 server.add({
   path: '/',
   method: Methods.POST,
@@ -27,6 +46,7 @@ server.add({
   }
 });
 
+// Dynamic path
 server.add({
   path: '/:id/:name',
   method: Methods.GET,
@@ -35,6 +55,18 @@ server.add({
   }
 });
 
+// Cancel the request
+server.add({
+  path: '/secure',
+  method: Methods.GET,
+  callback: async (req, res) => {
+    res.sendJSON({
+      'msg': 'Success'
+    });
+  },
+})
+
+// WebSocket
 server.addWs({
   path: '/ws',
   opened(request, response) {
@@ -48,6 +80,6 @@ server.addWs({
   closing(request) {
     server.logger.info('WebSocket closed');
   },
-})
+});
 
 server.start();

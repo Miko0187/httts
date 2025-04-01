@@ -1,5 +1,6 @@
 const testOne = document.getElementById('testOne');
 const websocketButton = document.getElementById('websocketButton');
+const cancelHook = document.getElementById('cancelHook');
 
 testOne.addEventListener('click', () => {
   const request = new XMLHttpRequest();
@@ -22,5 +23,18 @@ websocketButton.addEventListener('click', () => {
     socket.close();
 
     console.log('closed');
+  };
+});
+
+cancelHook.addEventListener('click', () => {
+  const request = new XMLHttpRequest();
+  request.open('GET', 'http://localhost:8080/secure');
+  request.setRequestHeader('Content-Type', 'application/json');
+  request.send();
+
+  request.onreadystatechange = () => {
+    if (request.readyState === XMLHttpRequest.DONE) {
+      alert(request.responseText);
+    }
   };
 });

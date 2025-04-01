@@ -9,7 +9,7 @@ export interface Hook {
     routeRemoved?: (route: Route, server: Server, success: Boolean) => void;
     hookAdded?: (hook: Hook, server: Server, success: Boolean) => void;
     hookRemoved?: (hook: Hook, server: Server, success: Boolean) => void;
-    before?: (request: Request, response: Response, server: Server) => void;
+    before?: (request: Request, response: Response, server: Server) => boolean | void;
     after?: (request: Request, response: Response, server: Server) => void;
     wsUpgrade?: (request: Request, ws: WsResponse, server: Server) => void;
     wsMessage?: (request: Request, ws: WsResponse, message: any, server: Server) => void;

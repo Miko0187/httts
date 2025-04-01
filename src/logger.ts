@@ -19,6 +19,6 @@ export class DefaultLogger implements Logger {
   }
 
   public debug(message: string) {
-    if (process.env.NODE_ENV === "development") console.log(`\x1b[34;1m[DEBUG] \x1b[34m${message}\x1b[0m`);
+    console.log(`\x1b[34;1m[DEBUG] \x1b[34m${message}\x1b[0m`);
   }
 }

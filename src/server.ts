@@ -43,6 +43,7 @@ interface ServerOptions {
   adapter?: Adapter;
   keyPath?: string;
   certPath?: string;
+  debug?: boolean;
 }
 
 export class Server {
@@ -55,44 +56,45 @@ export class Server {
   public logger: Logger;
   public adapter: Adapter;
 
+  public readonly options: ServerOptions;
   public readonly host: string;
   public readonly port: number;
   public readonly resources: string;
+  public readonly debug: boolean;
 
   constructor(options: ServerOptions) {
+    this.options = options;
     this.host = options.host;
     this.port = options.port;
     this.resources = options.resources || 'resources';
+    this.debug = options.debug || false;
     this.logger = options.logger || new DefaultLogger();
     this.adapter = options.adapter || (options.certPath && options.keyPath ? new HttpsAdapter(this, options.keyPath, options.certPath, this.logger) : new HttpAdapter(this, this.logger));
     this.wss = new WsServer({ noServer: true });
-
-    process.on('SIGINT', () => {
-      this.stop();
-      process.exit(0);
-    });
-
-    process.on('SIGTERM', () => {
-      this.stop();
-      process.exit(0);
-    });
   }
 
   /**
    * Execute a hook
    * @param which {Hook} Which hook to execute
    * @param args  {any[]} Arguments to pass to the hook
+   * @returns {boolean} Whether to cancel the operation
    */
   executeHooks<K extends keyof Hook>(
     which: K, 
     args: any[]
-  ): void {
+  ): boolean {
+    let cancel = false;
+
     for (const hook of this.hooks) {
       const hookFunction = hook[which];
 
       if (typeof hookFunction === 'function') {
         try {
-          (hookFunction as (...args: any[]) => any)(...args);
+          const result = (hookFunction as (...args: any[]) => any)(...args);
+
+          if (result !== undefined && which === "before" && typeof result === "boolean") {
+            cancel = result;
+          }
         } catch (error) {
           this.logger.error(`Error in hook "${hook.name}"`);
 
@@ -104,6 +106,8 @@ export class Server {
         }
       }
     }
+
+    return cancel;
   }
 
   /**
@@ -313,7 +317,7 @@ export class Server {
       let contentType = 'text/plain';
 
       if (extension in contentTypes) {
-          contentType = contentTypes[extension as keyof typeof contentTypes];
+        contentType = contentTypes[extension as keyof typeof contentTypes];
       }
 
       response.sendFile(`${this.resources}/${resource}`, contentType);
@@ -353,7 +357,9 @@ export class Server {
       return;
     }
 
-    this.executeHooks('before', [request, response, this]);
+    if (this.executeHooks('before', [request, response, this])) {
+      return;
+    }
     route.callback(request, response);
     this.executeHooks('after', [request, response, this]);
   }
