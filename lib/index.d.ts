@@ -1,4 +1,4 @@
-export { Server } from './server';
+export { Server, ServerOptions } from './server';
 export { Route, Methods, Websocket } from './route';
 export { Hook } from './hooks';
 export { loggingHook } from './defaultHooks';

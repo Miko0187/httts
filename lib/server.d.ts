@@ -2,7 +2,7 @@ import { Methods, Route, Websocket } from "./route";
 import { Logger } from "./logger";
 import type { Adapter, Response, Request } from "./adapter";
 import type { Hook } from "./hooks";
-interface ServerOptions {
+export interface ServerOptions {
     host: string;
     port: number;
     resources?: string;
@@ -37,4 +37,3 @@ export declare class Server {
     upgrade(request: any, socket: any, head: any, httpRequest: Request): void;
     invoke(path: string, request: Request, response: Response): void;
 }
-export {};

@@ -35,7 +35,7 @@ const contentTypes = {
   'woff2': 'font/woff2',
 };
 
-interface ServerOptions {
+export interface ServerOptions {
   host: string;
   port: number;
   resources?: string;
