@@ -10,7 +10,7 @@ const server = new Server({
 const someHook: Hook = {
   name: 'SomeAuthHook',
   before(request, response, server) {
-    if (request.url !== '/secure') {
+    if (request.body["token"] !== 'hallo') {
       return;
     }
 
