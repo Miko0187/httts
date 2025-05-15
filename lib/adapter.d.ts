@@ -13,6 +13,7 @@ export interface Request {
     body: string;
     userAgent: UserAgent;
     host: string;
+    port: number;
     params: Record<string, string>;
 }
 export interface Response {

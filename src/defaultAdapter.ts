@@ -37,13 +37,14 @@ export class HttpAdapter extends Adapter {
       });
 
       const _this = this;
-
+      
       req.on('end', function () {
         const request = <Request>{
           headers: req.headers || {},
           method: req.method || '',
           url: req.url || '/',
-          host: req.headers.host || '',
+          host: req.socket.remoteAddress,
+          port: req.socket.remotePort,
           userAgent: <UserAgent>{
             architecture: (ua && ua.cpu && ua.cpu.architecture) || '',
             browser: (ua && ua.browser && ua.browser.name) || '',
@@ -217,7 +218,8 @@ export class HttpsAdapter extends Adapter {
           headers: req.headers || {},
           method: req.method || '',
           url: req.url || '/',
-          host: req.headers.host || '',
+          host: req.socket.remoteAddress,
+          port: req.socket.remotePort,
           userAgent: <UserAgent>{
             architecture: (ua && ua.cpu && ua.cpu.architecture) || '',
             browser: (ua && ua.browser && ua.browser.name) || '',
